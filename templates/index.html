@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090e">
+<title>Nexus // Operations Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<style>
+/* ============================================================
+   DESIGN SYSTEM: DEEP OBSIDIAN & BIOLUMINESCENT AZURE
+   ============================================================ */
+:root {
+  --bg-core: #07090e;
+  --bg-card: rgba(14, 20, 32, 0.65);
+  --bg-card-hover: rgba(20, 28, 46, 0.85);
+  --bg-surface: rgba(255, 255, 255, 0.03);
+  --bg-input: rgba(6, 10, 18, 0.7);
+
+  --accent-cyan: #06b6d4;
+  --accent-blue: #3b82f6;
+  --accent-indigo: #6366f1;
+  --accent-grad: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #6366f1 100%);
+  --accent-grad-subtle: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(99, 102, 241, 0.15));
+
+  --status-ok: #10b981;
+  --status-warn: #f59e0b;
+  --status-err: #ef4444;
+  --status-cyan: #06b6d4;
+
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-active: rgba(6, 182, 212, 0.45);
+  --border-glow: 0 0 20px rgba(6, 182, 212, 0.25);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-core);
+  color: var(--text-primary);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* Background Atmosphere */
+.ambient-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 55% at 15% -10%, rgba(6, 182, 212, 0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 50% at 85% 110%, rgba(99, 102, 241, 0.12) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, #07090e 0%, #030508 100%);
+}
+
+.ambient-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 20%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 20%, transparent 80%);
+}
+
+/* Header */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  padding-top: max(14px, env(safe-area-inset-top));
+  background: rgba(7, 9, 14, 0.82);
+  border-bottom: 1px solid var(--border-subtle);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 20;
+  flex-shrink: 0;
+}
+
+.brand-emblem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--accent-grad-subtle);
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  display: grid;
+  place-items: center;
+  color: var(--accent-cyan);
+  font-size: 16px;
+  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.2);
+}
+
+.brand-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-title span {
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-subtitle {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.header-status {
+  margin-inline-start: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-ok);
+  box-shadow: 0 0 10px var(--status-ok);
+  position: relative;
+}
+
+.status-indicator::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid var(--status-ok);
+  opacity: 0.4;
+  animation: pulse-dot 2.5s infinite;
+}
+
+.status-pill.offline .status-indicator {
+  background: var(--status-err);
+  box-shadow: 0 0 10px var(--status-err);
+}
+
+.status-pill.offline .status-indicator::after {
+  border-color: var(--status-err);
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+.system-clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.btn-icon:hover {
+  color: #fff;
+  border-color: var(--accent-cyan);
+  background: rgba(6, 182, 212, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Sidebar */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(3, 5, 8, 0.65);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease-smooth);
+}
+
+body.nav-open .scrim {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(280px, 84vw);
+  background: rgba(10, 14, 22, 0.98);
+  border-right: 1px solid var(--border-subtle);
+  backdrop-filter: blur(24px);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  padding-top: max(24px, env(safe-area-inset-top));
+  transform: translateX(-102%);
+  transition: transform 0.35s var(--ease-smooth);
+  box-shadow: 20px 0 60px rgba(0, 0, 0, 0.6);
+}
+
+body.nav-open .sidebar {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  padding: 0 10px 20px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  font-weight: 600;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.nav-link i {
+  width: 20px;
+  font-size: 15px;
+  text-align: center;
+  transition: transform 0.2s var(--ease-smooth);
+}
+
+.nav-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nav-link.active {
+  color: #fff;
+  background: var(--accent-grad-subtle);
+  border-color: rgba(6, 182, 212, 0.3);
+  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.12);
+}
+
+.nav-link.active i {
+  color: var(--accent-cyan);
+}
+
+.sidebar-footer {
+  padding: 16px 12px 0;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-footer .foot-stat {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+}
+
+/* Main Viewport */
+.main-stage {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+
+.page {
+  position: absolute;
+  inset: 0;
+  padding: 24px clamp(16px, 3.5vw, 40px) 40px;
+  overflow-y: auto;
+  display: none;
+  flex-direction: column;
+}
+
+.page.active {
+  display: flex;
+  animation: fadeIn 0.3s var(--ease-smooth);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.view-title {
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.view-subtitle {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+/* Action Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-smooth);
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+.btn.primary {
+  background: var(--accent-grad);
+  border: none;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.35);
+}
+
+.btn.primary:hover {
+  box-shadow: 0 6px 22px rgba(6, 182, 212, 0.55);
+  transform: translateY(-1px);
+}
+
+/* Metrics Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  backdrop-filter: blur(16px);
+  transition: all 0.25s var(--ease-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card:hover {
+  border-color: rgba(6, 182, 212, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent-grad);
+  opacity: 0;
+  transition: opacity 0.25s var(--ease-smooth);
+}
+
+.metric-card:hover::before {
+  opacity: 1;
+}
+
+.metric-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--accent-grad-subtle);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  color: var(--accent-cyan);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  margin-bottom: 14px;
+}
+
+.metric-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(22px, 2.5vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  color: #fff;
+}
+
+.metric-label {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 6px;
+}
+
+.metric-footer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  margin-top: 12px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(6, 182, 212, 0.08);
+  border: 1px solid rgba(6, 182, 212, 0.15);
+}
+
+/* Filter Controls */
+.filter-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.search-input-wrap {
+  flex: 1;
+  min-width: 220px;
+  position: relative;
+}
+
+.search-input-wrap i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-input-wrap input {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-input);
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.search-input-wrap input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+}
+
+.segment-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+}
+
+.segment-btn {
+  border: 0;
+  background: none;
+  color: var(--text-secondary);
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.segment-btn:hover {
+  color: #fff;
+}
+
+.segment-btn.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Nodes Grid */
+.nodes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+  gap: 18px;
+}
+
+.node-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  backdrop-filter: blur(16px);
+  position: relative;
+  transition: transform 0.2s var(--ease-smooth), border-color 0.2s var(--ease-smooth);
+  display: flex;
+  flex-direction: column;
+}
+
+.node-card:hover {
+  border-color: rgba(6, 182, 212, 0.3);
+  transform: translateY(-2px);
+}
+
+.node-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.level-shield {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  background: var(--accent-grad-subtle);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.level-shield .shield-tier {
+  font-size: 10px;
+  color: var(--accent-cyan);
+  position: absolute;
+  top: 4px;
+  left: 6px;
+}
+
+.level-shield .shield-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.level-shield .shield-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--accent-cyan);
+  margin-top: 2px;
+}
+
+.node-id-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.node-name-line {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.node-name-line span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.node-uid-line {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.node-uid-line i {
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.15s;
+}
+
+.node-uid-line i:hover {
+  color: var(--accent-cyan);
+}
+
+.badges-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+
+.badge.status-match {
+  color: #fff;
+  background: rgba(6, 182, 212, 0.18);
+  border-color: rgba(6, 182, 212, 0.45);
+}
+
+.badge.status-online {
+  color: var(--status-ok);
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.badge.status-paused {
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.badge.status-err {
+  color: var(--status-err);
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+/* Progress Cluster */
+.gauge-cluster {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 14px;
+}
+
+.gauge-svg-wrap {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+}
+
+.gauge-svg-wrap svg {
+  transform: rotate(-90deg);
+}
+
+.gauge-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 5;
+}
+
+.gauge-bar {
+  fill: none;
+  stroke: var(--accent-cyan);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.4s var(--ease-smooth);
+}
+
+.gauge-pct {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.gauge-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-sub {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.detail-main {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  margin: 1px 0;
+}
+
+.detail-target {
+  font-size: 11px;
+  color: var(--accent-cyan);
+  font-weight: 500;
+}
+
+.telemetry-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-size: 11px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
+}
+
+.telemetry-item {
+  color: var(--text-secondary);
+}
+
+.telemetry-item strong {
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+
+.history-strip {
+  margin-top: auto;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-subtle);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-height: 52px;
+  overflow-y: auto;
+}
+
+.node-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.uptime-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.action-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.action-btn:hover {
+  color: #fff;
+  border-color: var(--accent-cyan);
+  background: rgba(6, 182, 212, 0.15);
+}
+
+.action-btn.btn-del:hover {
+  color: var(--status-err);
+  border-color: var(--status-err);
+  background: rgba(239, 68, 68, 0.15);
+}
+
+/* Empty State */
+.empty-view {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+
+.empty-view i {
+  font-size: 32px;
+  color: var(--accent-cyan);
+  margin-bottom: 16px;
+  display: block;
+}
+
+/* Terminal Console */
+.terminal-window {
+  flex: 1;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: rgba(6, 10, 18, 0.88);
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.terminal-header {
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+
+.terminal-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.terminal-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.terminal-content {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #cbd5e1;
+}
+
+.terminal-line {
+  display: flex;
+  gap: 12px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  word-break: break-word;
+}
+
+.terminal-line:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.term-time {
+  color: var(--accent-cyan);
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.term-msg.success { color: var(--status-ok); }
+.term-msg.warning { color: var(--status-warn); }
+.term-msg.error { color: var(--status-err); }
+
+/* Modal Architecture */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(3, 5, 8, 0.75);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease-smooth);
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-dialog {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(14, 20, 32, 0.95);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  transform: translateY(12px) scale(0.98);
+  transition: transform 0.25s var(--ease-smooth);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+  position: relative;
+}
+
+.modal-dialog::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent-grad);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.modal-overlay.active .modal-dialog {
+  transform: translateY(0) scale(1);
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.modal-desc {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-input);
+  color: #fff;
+  font-size: 13.5px;
+  outline: none;
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.form-control:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+}
+
+textarea.form-control {
+  min-height: 90px;
+  resize: vertical;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+/* Toast System */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  background: rgba(14, 20, 32, 0.95);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-cyan);
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 500;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+  animation: slideToast 0.25s var(--ease-smooth);
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+.toast.success { border-left-color: var(--status-ok); }
+.toast.error { border-left-color: var(--status-err); }
+
+@keyframes slideToast {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Responsive Mobile Navigation */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(7, 9, 14, 0.94);
+  border-top: 1px solid var(--border-subtle);
+  backdrop-filter: blur(20px);
+  z-index: 30;
+  padding: 8px 12px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  justify-content: space-around;
+}
+
+.mobile-nav-btn {
+  background: none;
+  border: 0;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s;
+}
+
+.mobile-nav-btn i {
+  font-size: 16px;
+}
+
+.mobile-nav-btn.active {
+  color: var(--accent-cyan);
+}
+
+@media (max-width: 768px) {
+  .mobile-nav { display: flex; }
+  .page { padding-bottom: 84px; }
+  .system-clock { display: none; }
+  .topbar { padding: 10px 16px; }
+  .brand-title { font-size: 14px; }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient-canvas">
+  <div class="ambient-grid"></div>
+</div>
+
+<header class="topbar">
+  <button class="btn-icon" id="sidebarToggle" aria-label="Open Navigation">
+    <i class="fa-solid fa-bars-staggered"></i>
+  </button>
+  <div class="brand-emblem">
+    <div class="brand-icon">
+      <i class="fa-solid fa-cube"></i>
+    </div>
+    <div class="brand-meta">
+      <div class="brand-title">NEXUS // <span>CORE</span></div>
+      <div class="brand-subtitle">Distributed Session Manager</div>
+    </div>
+  </div>
+  <div class="header-status">
+    <div class="system-clock" id="clock">00:00:00</div>
+    <div class="status-pill" id="clusterPill">
+      <span class="status-indicator"></span>
+      <span id="clusterStatusText">ACTIVE</span>
+    </div>
+  </div>
+</header>
+
+<div class="scrim" id="scrim"></div>
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand-emblem">
+      <div class="brand-icon">
+        <i class="fa-solid fa-cube"></i>
+      </div>
+      <div class="brand-meta">
+        <div class="brand-title">OPERATIONS</div>
+        <div class="brand-subtitle">Control Cluster</div>
+      </div>
+    </div>
+    <button class="btn-icon" id="sidebarClose">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+  <div class="nav-group">
+    <button class="nav-link active" data-page="dashboard">
+      <i class="fa-solid fa-gauge-high"></i> Dashboard
+    </button>
+    <button class="nav-link" data-page="nodes">
+      <i class="fa-solid fa-server"></i> Managed Nodes
+    </button>
+    <button class="nav-link" data-page="terminal">
+      <i class="fa-solid fa-terminal"></i> Console Logs
+    </button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="foot-stat">
+      <span>ENGINE</span>
+      <span>v4.9-STABLE</span>
+    </div>
+    <div class="foot-stat">
+      <span>RUNTIME</span>
+      <span id="side-uptime">00:00:00</span>
+    </div>
+  </div>
+</nav>
+
+<main class="main-stage">
+  <!-- Page 1: Dashboard -->
+  <section id="page-dashboard" class="page active">
+    <div class="view-header">
+      <div>
+        <h1 class="view-title">Operations Core</h1>
+        <p class="view-subtitle">Real-time aggregate telemetry across all managed instances</p>
+      </div>
+      <button class="btn primary" onclick="fetchTelemetry()">
+        <i class="fa-solid fa-rotate"></i> Sync Data
+      </button>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon"><i class="fa-solid fa-microchip"></i></div>
+        <div class="metric-value" id="stat-nodes">0</div>
+        <div class="metric-label">Active Nodes</div>
+        <div class="metric-footer" id="stat-nodes-online">0 connected</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon"><i class="fa-solid fa-gamepad"></i></div>
+        <div class="metric-value" id="stat-matches">0</div>
+        <div class="metric-label">Completed Sessions</div>
+        <div class="metric-footer" id="stat-match-rate">~0 /hr</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon"><i class="fa-solid fa-bolt"></i></div>
+        <div class="metric-value" id="stat-exp">+0</div>
+        <div class="metric-label">Cumulative Experience</div>
+        <div class="metric-footer" id="stat-exp-rate">~0 /hr</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon"><i class="fa-solid fa-stopwatch"></i></div>
+        <div class="metric-value" id="stat-uptime">00:00:00</div>
+        <div class="metric-label">System Uptime</div>
+        <div class="metric-footer" id="stat-concurrent">0 concurrent</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Page 2: Managed Nodes -->
+  <section id="page-nodes" class="page">
+    <div class="view-header">
+      <div>
+        <h1 class="view-title">Managed Nodes</h1>
+        <p class="view-subtitle">Supervise individual worker credentials and active game sessions</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn" id="btn-pause-all" onclick="togglePauseAll()">
+          <i class="fa-solid fa-pause"></i> Pause All
+        </button>
+        <button class="btn primary" onclick="openAddModal()">
+          <i class="fa-solid fa-plus"></i> Add Account
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <div class="search-input-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="node-search" placeholder="Search by name or UID..." oninput="filterNodes()">
+      </div>
+      <div class="segment-tabs" id="statusFilterTabs">
+        <button class="segment-btn active" data-filter="all" onclick="setNodeFilter('all', this)">All</button>
+        <button class="segment-btn" data-filter="match" onclick="setNodeFilter('match', this)">In-Match</button>
+        <button class="segment-btn" data-filter="online" onclick="setNodeFilter('online', this)">Online</button>
+        <button class="segment-btn" data-filter="paused" onclick="setNodeFilter('paused', this)">Paused</button>
+      </div>
+    </div>
+
+    <div class="nodes-grid" id="nodes-container">
+      <div class="empty-view">
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+        Connecting to node manager...
+      </div>
+    </div>
+  </section>
+
+  <!-- Page 3: Terminal Console -->
+  <section id="page-terminal" class="page">
+    <div class="view-header">
+      <div>
+        <h1 class="view-title">Console Stream</h1>
+        <p class="view-subtitle">Live standard output and diagnostic events from running workers</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn" id="autoscroll-toggle" onclick="toggleAutoScroll()">
+          <i class="fa-solid fa-arrow-down"></i> Auto-Scroll
+        </button>
+        <button class="btn" onclick="clearConsole()">
+          <i class="fa-solid fa-trash-can"></i> Clear
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <div class="segment-tabs" id="logFilterTabs">
+        <button class="segment-btn active" onclick="setLogFilter('all', this)">All Events</button>
+        <button class="segment-btn" onclick="setLogFilter('match', this)">Matches</button>
+        <button class="segment-btn" onclick="setLogFilter('exp', this)">EXP Updates</button>
+        <button class="segment-btn" onclick="setLogFilter('error', this)">Warnings & Errors</button>
+      </div>
+    </div>
+
+    <div class="terminal-window">
+      <div class="terminal-header">
+        <div class="terminal-dots">
+          <div class="terminal-dot"></div>
+          <div class="terminal-dot"></div>
+          <div class="terminal-dot"></div>
+        </div>
+        <div>/var/log/session.stdout</div>
+      </div>
+      <div class="terminal-content" id="terminal-stream" onscroll="onLogScroll()"></div>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Nav (Mobile Viewports) -->
+<nav class="mobile-nav">
+  <button class="mobile-nav-btn active" data-page="dashboard">
+    <i class="fa-solid fa-gauge-high"></i> Dashboard
+  </button>
+  <button class="mobile-nav-btn" data-page="nodes">
+    <i class="fa-solid fa-server"></i> Nodes
+  </button>
+  <button class="mobile-nav-btn" onclick="openAddModal()">
+    <i class="fa-solid fa-plus-circle"></i> Add
+  </button>
+  <button class="mobile-nav-btn" data-page="terminal">
+    <i class="fa-solid fa-terminal"></i> Console
+  </button>
+</nav>
+
+<!-- Modal: Add Node -->
+<div class="modal-overlay" id="addNodeModal">
+  <div class="modal-dialog">
+    <h2 class="modal-title">Deploy Account Node</h2>
+    <p class="modal-desc">Provide authentication credentials to initialize an automated worker session.</p>
+    <form onsubmit="submitAccount(event)">
+      <div class="form-group">
+        <label class="form-label">Authentication Type</label>
+        <select class="form-control" id="authTypeSelect" onchange="toggleAuthFields()">
+          <option value="guest">Guest (UID & Password)</option>
+          <option value="token">Direct Access Token</option>
+        </select>
+      </div>
+      <div id="fieldsGuest">
+        <div class="form-group">
+          <label class="form-label">Account UID</label>
+          <input type="text" class="form-control" id="modalUid" placeholder="e.g. 1029384756" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" id="modalPass" placeholder="••••••••••••" autocomplete="off">
+        </div>
+      </div>
+      <div id="fieldsToken" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Access Token</label>
+          <textarea class="form-control" id="modalToken" placeholder="Paste full authorization token string..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" onclick="closeAddModal()">Cancel</button>
+        <button type="submit" class="btn primary"><i class="fa-solid fa-bolt"></i> Initialize</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================================
+   EXP FORMULAS & TIERS
+   ============================================================ */
+const EXP_TABLE = {1:0,2:48,3:202,4:544,5:1012,6:1844,7:2792,8:3800,9:4870,10:6004,11:7192,12:8448,13:9760,14:11140,15:12566,16:14060,17:15610,18:17224,19:18902,20:20632,21:22424,22:24278,23:26192,24:28166,25:30200,26:32294,27:34448,28:37804,29:41274,30:44870,31:48582,32:53394,33:58566,34:64096,35:69994,36:76460,37:83506,38:91128,39:99322,40:108092,41:120144,42:133266,43:147472,44:162760,45:179126,46:196572,47:215368,48:235516,49:257010,50:279860,51:304056,52:348318,53:394982,54:444044,55:495508,56:549364,57:633756,58:721744,59:813336,60:908522,61:1041438,62:1180352,63:1325266,64:1476184,65:1634300,66:1840946,67:2056594,68:2281242,69:2514880,70:2757530,71:3059506,72:3372284,73:3699456,74:4041030,75:4397002,76:4829104,77:5282204,78:5756304,79:6251408,80:6776502,81:7381324,82:8043154,83:8752982,84:9510808,85:10316338,86:11277190,87:12291748,88:13360304,89:14482858,90:15659418,91:17026708,92:18453950,93:19941280,94:21488570,95:23095858,96:24763138,97:26490428,98:28378704,99:30124996,100:32032884};
+
+const TIERS = [
+  { min: 1, max: 9, icon: 'fa-shield', name: 'Tier I' },
+  { min: 10, max: 19, icon: 'fa-shield-halved', name: 'Tier II' },
+  { min: 20, max: 39, icon: 'fa-certificate', name: 'Tier III' },
+  { min: 40, max: 59, icon: 'fa-gem', name: 'Tier IV' },
+  { min: 60, max: 79, icon: 'fa-trophy', name: 'Tier V' },
+  { min: 80, max: 100, icon: 'fa-crown', name: 'Elite' }
+];
+
+function getTier(lvl) {
+  lvl = Math.max(1, Math.min(100, parseInt(lvl) || 1));
+  for (const t of TIERS) {
+    if (lvl >= t.min && lvl <= t.max) return t;
+  }
+  return TIERS[0];
+}
+
+/* ============================================================
+   APPLICATION STATE & ROUTING
+   ============================================================ */
+let activeNodeFilter = 'all';
+let activeLogFilter = 'all';
+let isAutoScroll = true;
+let logsCache = [];
+let clientStartTime = Date.now();
+
+const sidebar = document.getElementById('sidebar');
+const scrim = document.getElementById('scrim');
+function toggleSidebar(open) {
+  document.body.classList.toggle('nav-open', open);
+}
+document.getElementById('sidebarToggle').onclick = () => toggleSidebar(true);
+document.getElementById('sidebarClose').onclick = () => toggleSidebar(false);
+scrim.onclick = () => toggleSidebar(false);
+
+document.querySelectorAll('.nav-link, .mobile-nav-btn').forEach(btn => {
+  if (!btn.dataset.page) return;
+  btn.onclick = () => navigateView(btn.dataset.page);
+});
+
+function navigateView(pageId) {
+  document.querySelectorAll('.nav-link, .mobile-nav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.page === pageId);
+  });
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + pageId);
+  if (target) target.classList.add('active');
+  toggleSidebar(false);
+}
+
+function showToast(text, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icon = type === 'success' ? 'fa-check' : (type === 'error' ? 'fa-triangle-exclamation' : 'fa-info');
+  toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${escapeHtml(text)}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(20px)';
+    setTimeout(() => toast.remove(), 250);
+  }, 3500);
+}
+
+/* ============================================================
+   MODAL CONTROLS & API DISPATCH
+   ============================================================ */
+function openAddModal() { document.getElementById('addNodeModal').classList.add('active'); }
+function closeAddModal() { document.getElementById('addNodeModal').classList.remove('active'); }
+function toggleAuthFields() {
+  const isGuest = document.getElementById('authTypeSelect').value === 'guest';
+  document.getElementById('fieldsGuest').style.display = isGuest ? 'block' : 'none';
+  document.getElementById('fieldsToken').style.display = isGuest ? 'none' : 'block';
+}
+
+async function submitAccount(e) {
+  e.preventDefault();
+  const type = document.getElementById('authTypeSelect').value;
+  let payload;
+  if (type === 'guest') {
+    const uid = document.getElementById('modalUid').value.trim();
+    const pass = document.getElementById('modalPass').value.trim();
+    if (!uid || !pass) { showToast('UID and password are required', 'error'); return; }
+    payload = { uid, password: pass };
+  } else {
+    const token = document.getElementById('modalToken').value.trim();
+    if (!token) { showToast('Access token string is required', 'error'); return; }
+    payload = { token };
+  }
+
+  try {
+    const res = await fetch('/api/account/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      closeAddModal();
+      showToast('Worker initialized successfully', 'success');
+      fetchTelemetry();
+    } else {
+      showToast(data.error || 'Initialization rejected', 'error');
+    }
+  } catch (err) {
+    showToast('Failed to communicate with engine', 'error');
+  }
+}
+
+async function removeNode(uid) {
+  if (!confirm(`Terminate worker session for UID ${uid}?`)) return;
+  try {
+    const res = await fetch('/api/account/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid })
+    });
+    const d = await res.json();
+    if (d.status === 'ok') {
+      showToast(`Node ${uid} terminated`, 'success');
+      const el = document.getElementById('node-' + uid);
+      if (el) el.remove();
+      fetchTelemetry();
+    } else {
+      showToast(d.error || 'Action failed', 'error');
+    }
+  } catch (e) {
+    showToast('Engine offline', 'error');
+  }
+}
+
+async function syncNode(uid) {
+  try {
+    showToast(`Requesting telemetry for ${uid}...`, 'info');
+    await fetch('/api/account/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid })
+    });
+    setTimeout(fetchTelemetry, 700);
+  } catch (e) {
+    showToast('Failed to sync node', 'error');
+  }
+}
+
+async function togglePauseNode(uid) {
+  try {
+    const res = await fetch('/api/account/pause', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid })
+    });
+    const d = await res.json();
+    if (d.status === 'ok') {
+      showToast(d.is_paused ? `Node ${uid} paused` : `Node ${uid} resumed`, 'info');
+      fetchTelemetry();
+    }
+  } catch (e) {
+    showToast('Engine unreachable', 'error');
+  }
+}
+
+async function togglePauseAll() {
+  try {
+    const res = await fetch('/api/account/pause_all', { method: 'POST' });
+    const d = await res.json();
+    if (d.status === 'ok') {
+      showToast(d.all_paused ? 'All nodes paused' : 'All nodes resumed', 'info');
+      fetchTelemetry();
+    }
+  } catch (e) {
+    showToast('Engine unreachable', 'error');
+  }
+}
+
+/* ============================================================
+   FLICKER-FREE NODE RENDERING (IN-PLACE RECONCILIATION)
+   ============================================================ */
+function renderNodes(accounts) {
+  const container = document.getElementById('nodes-container');
+  const allPaused = accounts.length > 0 && accounts.every(a => a.is_paused || a.status === 'PAUSED');
+  
+  const pauseAllBtn = document.getElementById('btn-pause-all');
+  pauseAllBtn.innerHTML = allPaused
+    ? '<i class="fa-solid fa-play"></i> Resume All'
+    : '<i class="fa-solid fa-pause"></i> Pause All';
+
+  if (!accounts || accounts.length === 0) {
+    container.innerHTML = `<div class="empty-view"><i class="fa-solid fa-microchip"></i>No active worker nodes found.<br><button class="btn primary" style="margin-top:14px" onclick="openAddModal()">Deploy Node</button></div>`;
+    return;
+  }
+
+  container.querySelectorAll('.empty-view').forEach(e => e.remove());
+
+  const currentUids = new Set(accounts.map(a => String(a.uid)));
+  container.querySelectorAll('.node-card').forEach(card => {
+    if (!currentUids.has(card.dataset.uid)) card.remove();
+  });
+
+  const ringR = 24;
+  const ringCirc = 2 * Math.PI * ringR;
+
+  accounts.forEach(acc => {
+    const uid = String(acc.uid);
+    const lvl = Math.max(1, parseInt(acc.level) || 1);
+    const tier = getTier(lvl);
+    const nextLvl = Math.min(100, lvl + 1);
+    const baseExp = EXP_TABLE[lvl] ?? 0;
+    const targetExp = EXP_TABLE[nextLvl] ?? (baseExp + 50000);
+    const needed = Math.max(1, targetExp - baseExp);
+    const curExp = Number(acc.current_exp || 0);
+    const earned = Math.max(0, curExp - baseExp);
+    const remaining = Math.max(0, targetExp - curExp);
+    const pct = lvl >= 100 ? 100 : Math.min(100, Math.max(0, (earned / needed) * 100));
+    const paused = Boolean(acc.is_paused || acc.status === 'PAUSED');
+    const rawStatus = paused ? 'PAUSED' : (acc.status || 'ONLINE');
+
+    let badgeClass = 'status-online';
+    let badgeIcon = 'fa-circle-check';
+    let statusText = 'Online';
+
+    if (paused) {
+      badgeClass = 'status-paused';
+      badgeIcon = 'fa-pause';
+      statusText = 'Paused';
+    } else if (rawStatus.includes('MATCH')) {
+      badgeClass = 'status-match';
+      badgeIcon = 'fa-crosshairs';
+      statusText = 'In Match';
+    } else if (rawStatus.includes('SEARCH')) {
+      badgeClass = 'status-match';
+      badgeIcon = 'fa-compass fa-spin';
+      statusText = 'Searching';
+    } else if (rawStatus !== 'ONLINE') {
+      badgeClass = 'status-err';
+      badgeIcon = 'fa-triangle-exclamation';
+      statusText = rawStatus;
+    }
+
+    const strokeDash = `${((pct / 100) * ringCirc).toFixed(1)} ${ringCirc.toFixed(1)}`;
+    const historyList = acc.match_history || [];
+    const historyHtml = historyList.slice(-2).reverse().map(h => 
+      `<div>[${escapeHtml(h.time || '')}] ${escapeHtml(h.msg || '')}</div>`
+    ).join('') || '<div style="opacity:0.4">No recent matches logged</div>';
+
+    let card = document.getElementById('node-' + uid);
+    if (!card) {
+      card = document.createElement('div');
+      card.id = 'node-' + uid;
+      card.className = 'node-card';
+      container.appendChild(card);
+
+      card.innerHTML = `
+        <div class="node-header">
+          <div class="level-shield">
+            <i class="fa-solid shield-tier-icon shield-tier"></i>
+            <div class="shield-val val-lvl">1</div>
+            <div class="shield-label">LVL</div>
+          </div>
+          <div class="node-id-meta">
+            <div class="node-name-line">
+              <span class="val-nick">--</span>
+            </div>
+            <div class="node-uid-line">
+              <span>UID:</span>
+              <span class="val-uid">--</span>
+              <i class="fa-regular fa-copy btn-copy" title="Copy UID"></i>
+            </div>
+          </div>
+        </div>
+        <div class="badges-bar">
+          <span class="badge status-badge"><i class="fa-solid badge-icon"></i><span class="badge-text">--</span></span>
+          <span class="badge"><i class="fa-solid fa-gamepad"></i><span class="val-mode">LW</span></span>
+          <span class="badge"><i class="fa-solid fa-globe"></i><span class="val-reg">IND</span></span>
+        </div>
+        <div class="gauge-cluster">
+          <div class="gauge-svg-wrap">
+            <svg width="58" height="58" viewBox="0 0 58 58">
+              <circle class="gauge-bg" cx="29" cy="29" r="${ringR}"></circle>
+              <circle class="gauge-bar" cx="29" cy="29" r="${ringR}" stroke-dasharray="0 ${ringCirc}"></circle>
+            </svg>
+            <div class="gauge-pct">0%</div>
+          </div>
+          <div class="gauge-details">
+            <div class="detail-sub">Session Gain</div>
+            <div class="detail-main val-gained">+0</div>
+            <div class="detail-target val-target">0 to Next</div>
+          </div>
+        </div>
+        <div class="telemetry-row">
+          <div class="telemetry-item">Matches: <strong class="val-matches">0</strong></div>
+          <div class="telemetry-item">Current: <strong class="val-curexp">0</strong></div>
+        </div>
+        <div class="history-strip"></div>
+        <div class="node-actions">
+          <span class="uptime-badge"><i class="fa-regular fa-clock"></i> <span class="val-uptime">00m 00s</span></span>
+          <div class="action-buttons">
+            <button class="action-btn btn-pause" title="Toggle Pause"><i class="fa-solid fa-pause"></i></button>
+            <button class="action-btn btn-sync" title="Sync Profile"><i class="fa-solid fa-rotate"></i></button>
+            <button class="action-btn btn-del" title="Remove Worker"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+      `;
+
+      card.querySelector('.btn-copy').onclick = () => copyText(uid, 'UID');
+      card.querySelector('.btn-pause').onclick = () => togglePauseNode(uid);
+      card.querySelector('.btn-sync').onclick = () => syncNode(uid);
+      card.querySelector('.btn-del').onclick = () => removeNode(uid);
+    }
+
+    // Direct in-place reconciliation
+    card.dataset.uid = uid;
+    card.dataset.nick = (acc.nickname || '').toLowerCase();
+    card.dataset.status = rawStatus.toLowerCase();
+    card.dataset.paused = paused ? '1' : '0';
+
+    updateText(card.querySelector('.val-lvl'), lvl);
+    updateText(card.querySelector('.val-nick'), acc.nickname || `Instance_${uid.slice(0, 5)}`);
+    updateText(card.querySelector('.val-uid'), uid);
+    updateText(card.querySelector('.val-reg'), acc.region || 'IND');
+
+    const statusBadge = card.querySelector('.status-badge');
+    statusBadge.className = `badge status-badge ${badgeClass}`;
+    card.querySelector('.badge-icon').className = `fa-solid ${badgeIcon}`;
+    updateText(card.querySelector('.badge-text'), statusText);
+
+    const gaugeBar = card.querySelector('.gauge-bar');
+    if (gaugeBar.getAttribute('stroke-dasharray') !== strokeDash) {
+      gaugeBar.setAttribute('stroke-dasharray', strokeDash);
+    }
+    updateText(card.querySelector('.gauge-pct'), `${pct.toFixed(0)}%`);
+    updateText(card.querySelector('.val-gained'), `+${Number(acc.gained_exp || 0).toLocaleString()}`);
+    updateText(card.querySelector('.val-target'), `${remaining.toLocaleString()} to Lv${nextLvl}`);
+
+    updateText(card.querySelector('.val-matches'), acc.matches_played || 0);
+    updateText(card.querySelector('.val-curexp'), curExp.toLocaleString());
+
+    const histEl = card.querySelector('.history-strip');
+    if (histEl.dataset.raw !== historyHtml) {
+      histEl.innerHTML = historyHtml;
+      histEl.dataset.raw = historyHtml;
+    }
+
+    const uptimeEl = card.querySelector('.val-uptime');
+    uptimeEl.dataset.sec = Math.floor(acc.uptime_seconds || 0);
+    uptimeEl.dataset.paused = paused ? '1' : '0';
+    updateText(uptimeEl, formatDuration(acc.uptime_seconds || 0));
+
+    const pauseIcon = card.querySelector('.btn-pause i');
+    pauseIcon.className = `fa-solid ${paused ? 'fa-play' : 'fa-pause'}`;
+  });
+
+  filterNodes();
+}
+
+function updateText(el, val) {
+  val = String(val ?? '');
+  if (el && el.textContent !== val) {
+    el.textContent = val;
+  }
+}
+
+function filterNodes() {
+  const query = (document.getElementById('node-search').value || '').toLowerCase().trim();
+  document.querySelectorAll('.node-card').forEach(card => {
+    const uid = card.dataset.uid || '';
+    const nick = card.dataset.nick || '';
+    const status = card.dataset.status || '';
+    const isPaused = card.dataset.paused === '1';
+
+    let match = !query || uid.includes(query) || nick.includes(query);
+    if (activeNodeFilter === 'match') match = match && status.includes('match') && !isPaused;
+    else if (activeNodeFilter === 'online') match = match && status.includes('online') && !isPaused;
+    else if (activeNodeFilter === 'paused') match = match && isPaused;
+
+    card.style.display = match ? '' : 'none';
+  });
+}
+
+function setNodeFilter(type, btn) {
+  activeNodeFilter = type;
+  document.querySelectorAll('#statusFilterTabs .segment-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  filterNodes();
+}
+
+/* ============================================================
+   TERMINAL CONSOLE STREAMING
+   ============================================================ */
+function setLogFilter(type, btn) {
+  activeLogFilter = type;
+  document.querySelectorAll('#logFilterTabs .segment-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderTerminalLogs(logsCache);
+}
+
+function renderTerminalLogs(logs) {
+  const stream = document.getElementById('terminal-stream');
+  let list = logs || [];
+
+  if (activeLogFilter === 'match') {
+    list = list.filter(l => String(l.message || '').toLowerCase().includes('match'));
+  } else if (activeLogFilter === 'exp') {
+    list = list.filter(l => l.level === 'success' || String(l.message || '').includes('EXP'));
+  } else if (activeLogFilter === 'error') {
+    list = list.filter(l => l.level === 'error' || l.level === 'warning');
+  }
+
+  const html = list.map(l => `
+    <div class="terminal-line">
+      <span class="term-time">[${escapeHtml(l.time || '00:00:00')}]</span>
+      <span class="term-msg ${escapeHtml(l.level || 'info')}">${escapeHtml(l.message || '')}</span>
+    </div>
+  `).join('');
+
+  if (stream.dataset.cache !== html) {
+    stream.dataset.cache = html;
+    stream.innerHTML = html;
+    if (isAutoScroll) {
+      stream.scrollTop = stream.scrollHeight;
+    }
+  }
+}
+
+async function clearConsole() {
+  try {
+    await fetch('/api/logs/clear', { method: 'POST' });
+    logsCache = [];
+    renderTerminalLogs([]);
+    showToast('Terminal logs flushed', 'info');
+  } catch (e) {
+    showToast('Failed to clear logs', 'error');
+  }
+}
+
+function toggleAutoScroll() {
+  isAutoScroll = !isAutoScroll;
+  const btn = document.getElementById('autoscroll-toggle');
+  btn.style.color = isAutoScroll ? 'var(--accent-cyan)' : 'var(--text-secondary)';
+  if (isAutoScroll) {
+    const stream = document.getElementById('terminal-stream');
+    stream.scrollTop = stream.scrollHeight;
+  }
+}
+
+function onLogScroll() {
+  const stream = document.getElementById('terminal-stream');
+  if (isAutoScroll && (stream.scrollHeight - stream.scrollTop - stream.clientHeight) > 50) {
+    isAutoScroll = false;
+    document.getElementById('autoscroll-toggle').style.color = 'var(--text-secondary)';
+  }
+}
+
+/* ============================================================
+   DATA POLLING & TELEMETRY
+   ============================================================ */
+async function fetchTelemetry() {
+  try {
+    const res = await fetch('/api/stats');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    const accounts = Array.isArray(data.accounts) ? data.accounts : [];
+    const logs = Array.isArray(data.logs) ? data.logs : [];
+
+    updateText(document.getElementById('stat-nodes'), data.total_accounts ?? accounts.length);
+    updateText(document.getElementById('stat-matches'), data.total_matches ?? 0);
+    updateText(document.getElementById('stat-exp'), `+${Number(data.total_gained_exp || 0).toLocaleString()}`);
+    updateText(document.getElementById('stat-concurrent'), `${data.total_active_matches || 0} in progress`);
+
+    const onlineCount = accounts.filter(a => (a.status === 'ONLINE' || a.status === 'IN_MATCH') && !a.is_paused).length;
+    updateText(document.getElementById('stat-nodes-online'), `${onlineCount} operational`);
+
+    const hours = Math.max(0.016, (data.uptime || 60) / 3600);
+    const matchRate = Math.round((data.total_matches || 0) / hours);
+    updateText(document.getElementById('stat-match-rate'), `~${matchRate} /hr`);
+    updateText(document.getElementById('stat-exp-rate'), `~${Number(data.exp_per_hour || 0).toLocaleString()} /hr`);
+
+    logsCache = logs;
+    renderNodes(accounts);
+    renderTerminalLogs(logs);
+
+    setClusterStatus(true);
+  } catch (err) {
+    setClusterStatus(false);
+  }
+}
+
+function setClusterStatus(isOnline) {
+  const pill = document.getElementById('clusterPill');
+  const text = document.getElementById('clusterStatusText');
+  pill.classList.toggle('offline', !isOnline);
+  text.textContent = isOnline ? 'ONLINE' : 'DISCONNECTED';
+}
+
+function copyText(val, label) {
+  const onSuccess = () => showToast(`${label} copied to clipboard`, 'success');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(val).then(onSuccess, () => fallbackCopy(val));
+  } else {
+    fallbackCopy(val);
+  }
+}
+
+function fallbackCopy(text) {
+  const el = document.createElement('textarea');
+  el.value = text;
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+  showToast('Copied to clipboard', 'success');
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function formatDuration(sec) {
+  sec = Math.max(0, Math.floor(Number(sec) || 0));
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  return h > 0
+    ? `${h}h ${String(m).padStart(2, '0')}m`
+    : `${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`;
+}
+
+function updateClock() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  document.getElementById('clock').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+setInterval(() => {
+  const elapsed = Math.floor((Date.now() - clientStartTime) / 1000);
+  const formatted = formatDuration(elapsed);
+  updateText(document.getElementById('stat-uptime'), formatted);
+  updateText(document.getElementById('side-uptime'), formatted);
+
+  document.querySelectorAll('.val-uptime').forEach(el => {
+    if (el.dataset.paused === '1') return;
+    const current = parseInt(el.dataset.sec || '0') + 1;
+    el.dataset.sec = current;
+    el.textContent = formatDuration(current);
+  });
+}, 1000);
+
+fetchTelemetry();
+setInterval(fetchTelemetry, 4000);
+</script>
+</body>
+</html>
